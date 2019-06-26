@@ -1,2 +1,5 @@
 node_modules
 knexfile.js
+error-handling.md
+hosting.md
+endpoints.json
