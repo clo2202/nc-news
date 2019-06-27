@@ -11,6 +11,16 @@ chai.use(chaiSorted);
 describe("/api", () => {
   beforeEach(() => connection.seed.run());
   after(() => connection.destroy());
+  describe('/api', () => {
+    it('GET responds with status: 200 and a json object of all available endpoints', () => {
+      return request
+      .get('/api')
+      .expect(200)
+      .then(({body}) => {
+        expect(body).to.be.an('object')
+      })
+    })
+  });
   describe("/topics", () => {
     it("GET responds with status: 200 and an array of topic objects", () => {
       return request
