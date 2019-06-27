@@ -374,7 +374,7 @@ describe("/api", () => {
       return Promise.all(methodPromises);
     });
   });
-  describe.only('/api/comments/:comment_id', () => {
+  describe('/api/comments/:comment_id', () => {
     it('PATCH responds with status: 201 an updated comment object', () => {
       const input = { inc_votes: 1 }
       return request
@@ -385,6 +385,78 @@ describe("/api", () => {
           expect(comment.votes).to.equal(17)
         })
     })
+    it('PATCH responds with status: 201 an updated comment object with decreased votes', () => {
+      const input = { inc_votes: -1 }
+      return request
+        .patch('/api/comments/1')
+        .send(input)
+        .expect(201)
+        .then(({body: { comment }}) => {
+          expect(comment.votes).to.equal(15)
+        })
+    })
+    it("PATCH ERROR responds with status: 404 when comment id does not exist", () => {
+      const input = { inc_votes: 1 }
+      return request
+        .patch("/api/comments/5000")
+        .send(input)
+        .expect(404)
+        .then(({ body: { msg } }) => {
+          expect(msg).to.equal("Comment does not exist");
+        });
+    });
+    it("PATCH ERROR responds with status: 400 when comment id is invalid", () => {
+      const input = { inc_votes: 1 }
+      return request
+        .patch("/api/comments/cats")
+        .send(input)
+        .expect(400)
+        .then(({ body: { msg } }) => {
+          expect(msg).to.equal("Bad Request");
+        });
+    });
+    it("PATCH ERROR responds with status: 400 when input value is invalid", () => {
+      const input = { inc_votes: 'hello' }
+      return request
+        .patch("/api/comments/cats")
+        .send(input)
+        .expect(400)
+        .then(({ body: { msg } }) => {
+          expect(msg).to.equal("Bad Request");
+        });
+    });
+    it('DELETE responds with status: 204 and no content', () => {
+      return request
+        .delete('/api/comments/1')
+        .expect(204)
+    });
+    it("DELETE ERROR responds with status: 404 when comment id does not exist", () => {
+      return request
+        .delete("/api/comments/5000")
+        .expect(404)
+        .then(({ body: { msg } }) => {
+          expect(msg).to.equal("Comment does not exist");
+        });
+    });
+    it('DELETE ERROR responds with status: 400 when comment id is invalid', () => {
+      return request
+      .delete("/api/comments/cats")
+      .expect(400)
+      .then(({body: { msg }}) => {
+        expect(msg).to.equal("Bad Request")
+      })
+    });
+    it("INVALID METHOD responds with status: 405", () => {
+      const invalidMethods = ["put", "post", 'get'];
+      const methodPromises = invalidMethods.map(method => {
+        return request[method]("/api/comments/1")
+          .expect(405)
+          .then(({ body: { msg } }) => {
+            expect(msg).to.equal("Method not allowed");
+          });
+      });
+      return Promise.all(methodPromises);
+    });
   });
 });
 

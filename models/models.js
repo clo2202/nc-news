@@ -65,17 +65,30 @@ exports.fetchComments = ({article_id}, {sort_by, order}) => {
   })
 }
 
-exports.amendCommentsById = ({inc_votes}, {comment_id}) => {
+exports.amendCommentById = ({inc_votes}, {comment_id}) => {
   return connection('comments')
   .select('*')
   .where({comment_id})
   .returning('*')
   .then(comment => {
-    const updatedVotes = inc_votes + comment[0].votes
-    return connection('comments')
-    .select('*')
-    .where({comment_id})
-    .update({votes: updatedVotes})
-    .returning('*')
+    if(comment.length !== 0) {
+      const updatedVotes = inc_votes + comment[0].votes
+      return connection('comments')
+      .select('*')
+      .where({comment_id})
+      .update({votes: updatedVotes})
+      .returning('*')
+    } else {
+      return Promise.reject({status: 404, msg: "Comment does not exist"})
+    }
+  })
+}
+
+exports.removeCommentById = ({comment_id}) => {
+  return connection('comments')
+  .where({comment_id})
+  .del()
+  .then(delCount => {
+    if(!delCount) return Promise.reject({status:404, msg: 'Comment does not exist'})
   })
 }

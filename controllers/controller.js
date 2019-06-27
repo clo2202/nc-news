@@ -5,7 +5,8 @@ const {
   amendArticleById,
   addCommentByArticleId,
   fetchComments,
-  amendCommentsById
+  amendCommentById,
+  removeCommentById
 } = require("../models/models");
 
 exports.getTopics = (req, res, next) => {
@@ -29,7 +30,7 @@ exports.getUserById = (req, res, next) => {
 };
 
 exports.getArticleById = (req, res, next) => {
-  fetchArticles(req.params)
+  fetchArticles(req.params, req.query)
     .then(article => {
       if (article.length !== 0) {
         res.status(200).send(article[0]);
@@ -81,9 +82,17 @@ exports.getArticles = (req, res, next) => {
 }
 
 exports.updateCommentById = (req, res, next) => {
-  amendCommentsById(req.body, req.params)
+  amendCommentById(req.body, req.params)
   .then(([comment]) => {
     res.status(201).send({comment})
+  })
+  .catch(next)
+}
+
+exports.deleteCommentbyId = (req, res, next) => {
+  removeCommentById(req.params)
+  .then(() => {
+    res.status(204).send()
   })
   .catch(next)
 }
