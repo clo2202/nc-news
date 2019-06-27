@@ -3,7 +3,9 @@ const {
   fetchUsers,
   fetchArticles,
   amendArticleById,
-  addCommentByArticleId
+  addCommentByArticleId,
+  fetchComments,
+  amendCommentsById
 } = require("../models/models");
 
 exports.getTopics = (req, res, next) => {
@@ -41,7 +43,7 @@ exports.getArticleById = (req, res, next) => {
 exports.updateArticleById = (req, res, next) => {
   amendArticleById(req.body, req.params)
     .then(([article]) => {
-      res.status(201).send(article);
+      res.status(201).send({article});
     })
     .catch(next);
 };
@@ -49,7 +51,39 @@ exports.updateArticleById = (req, res, next) => {
 exports.postCommentByArticleId = (req, res, next) => {
   addCommentByArticleId(req.body, req.params)
     .then(([comment]) => {
-      res.status(201).send(comment)
+      res.status(201).send({comment})
     })
     .catch(next)
+}
+
+exports.getCommentsByArticleId = (req, res, next) => {
+  fetchComments(req.params, req.query)
+    .then(comments => {
+      if(comments.length !== 0) {
+        res.status(200).send({comments})
+      } else {
+        next({ status: 404, msg: "Article does not exist" })
+      }
+    })
+    .catch(next)
+}
+
+exports.getArticles = (req, res, next) => {
+  fetchArticles(req.params, req.query)
+  .then(articles => {
+    if(articles.length !== 0) {
+      res.status(200).send({articles})
+    } else {
+      next({status: 404})
+    }
+  })
+  .catch(next)
+}
+
+exports.updateCommentById = (req, res, next) => {
+  amendCommentsById(req.body, req.params)
+  .then(([comment]) => {
+    res.status(201).send({comment})
+  })
+  .catch(next)
 }

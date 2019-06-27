@@ -5,7 +5,7 @@ exports.error405Handler = (req, res, next) => {
 
 exports.error404Handler = (err, req, res, next) => {
   if(err.status === 404) {
-    res.status(err.status).send({msg: err.msg}) 
+    res.status(err.status).send({msg: err.msg || "Page cannot be found"}) 
   } else if (err.code === '23503') {
     res.status(404).send({msg: "The page does not exist"})
   } else {
