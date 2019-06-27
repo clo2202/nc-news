@@ -1,6 +1,6 @@
 const express = require("express");
 const articlesRouter = express.Router();
-const { getArticleById, updateArticleById } = require("../controllers/controller");
+const { getArticleById, updateArticleById, postCommentByArticleId } = require("../controllers/controller");
 const {
   error404Handler,
   error400Handler,
@@ -12,6 +12,8 @@ articlesRouter
   .get(getArticleById)
   .patch(updateArticleById)
   .all(error405Handler)
+
+articlesRouter.post("/:article_id/comments", postCommentByArticleId)
 
 articlesRouter.use(error404Handler);
 articlesRouter.use(error400Handler);

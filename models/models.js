@@ -41,3 +41,14 @@ exports.amendArticleById = ({inc_votes}, {article_id}) => {
     }
   })
 }
+
+exports.addCommentByArticleId = (comment, {article_id}) => {
+  const updateComment = ({ username, ...object}) => ({author: username, article_id, ...object})
+  const updatedComment = updateComment(comment)
+  return connection('comments')
+  .insert(updatedComment)
+  .returning('*')
+  .catch((err) => {
+    return Promise.reject(err)
+  })
+} 

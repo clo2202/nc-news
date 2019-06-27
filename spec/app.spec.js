@@ -60,7 +60,7 @@ describe("/api", () => {
       return Promise.all(methodPromises);
     });
   });
-  describe("/api/articles/:article", () => {
+  describe("/articles/:article", () => {
     it("GET responds with status:200 and a single article obj with given article_id", () => {
       return request
         .get("/api/articles/1")
@@ -94,7 +94,7 @@ describe("/api", () => {
           expect(msg).to.equal("Article does not exist");
         });
     });
-    it('GET ERROR responds with status: 400 when article_id is invalid', () => {
+    it("GET ERROR responds with status: 400 when article_id is invalid", () => {
       return request
         .get("/api/articles/cats")
         .expect(400)
@@ -108,11 +108,21 @@ describe("/api", () => {
         .patch("/api/articles/1")
         .send(input)
         .expect(201)
-        .then(({body}) => {
-          expect(body.votes).to.equal(101)
+        .then(({ body }) => {
+          expect(body.votes).to.equal(101);
         });
     });
-    it('PATCH ERROR responds with status: 404 when article id does not exist', () => {
+    it("PATCH responds with status: 201 and an updated object with decreased votes", () => {
+      const input = { inc_votes: -1 };
+      return request
+        .patch("/api/articles/1")
+        .send(input)
+        .expect(201)
+        .then(({ body }) => {
+          expect(body.votes).to.equal(99);
+        });
+    });
+    it("PATCH ERROR responds with status: 404 when article id does not exist", () => {
       const input = { inc_votes: 1 };
       return request
         .patch("/api/articles/5000")
@@ -122,7 +132,7 @@ describe("/api", () => {
           expect(msg).to.equal("Article does not exist");
         });
     });
-    it('PATCH ERROR responds with status: 400 when article_id is invalid', () => {
+    it("PATCH ERROR responds with status: 400 when article_id is invalid", () => {
       const input = { inc_votes: 1 };
       return request
         .patch("/api/articles/cats")
@@ -132,8 +142,8 @@ describe("/api", () => {
           expect(msg).to.equal("Bad Request");
         });
     });
-    it('PATCH ERROR responds with status: 400 when input is incorrect type', () => {
-      const input = { inc_votes: 'hello' };
+    it("PATCH ERROR responds with status: 400 when input is incorrect type", () => {
+      const input = { inc_votes: "hello" };
       return request
         .patch("/api/articles/1")
         .send(input)
@@ -154,9 +164,54 @@ describe("/api", () => {
       return Promise.all(methodPromises);
     });
   });
-  // describe('/articles/:article')
-  // status: 400 invalid article_id e.g bananas
-  // set up so fetchAllUsers model can be used with and without param, don't need two models
+  describe.only("/articles/:article_id/comments", () => {
+    it("POST responds with status: 201 and the new comment obj", () => {
+      const input = {
+        username: "butter_bridge",
+        body: "I am a comment"
+      };
+      return request
+        .post("/api/articles/1/comments")
+        .send(input)
+        .expect(201)
+        .then(({ body }) => {
+          expect(body.votes).to.equal(0);
+          expect(body).to.contain.keys(
+            "comment_id",
+            "author",
+            "article_id",
+            "created_at",
+            "body"
+          );
+        });
+    });
+    it("POST ERROR responds with status: 404 when article id does not exist", () => {
+      const input = {
+        username: "butter_bridge",
+        body: "I am a comment"
+      };
+      return request
+        .post("/api/articles/5000/comments")
+        .send(input)
+        .expect(404)
+        .then(({ body: { msg } }) => {
+          expect(msg).to.equal("The page does not exist");
+        });
+    });
+    it("POST ERROR responds with status: 400 when adding invalid columns", () => {
+      const input = {
+        username: "test user",
+        copy: "I am a comment"
+      };
+      return request
+        .post("/api/articles/1/comments")
+        .send(input)
+        .expect(400)
+        .then(({ body: { msg } }) => {
+          expect(msg).to.equal("Bad Request");
+        });
+    });
+  });
 });
 
 describe("generic error tests", () => {
