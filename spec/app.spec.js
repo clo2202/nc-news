@@ -11,7 +11,7 @@ chai.use(chaiSorted);
 describe("/api", () => {
   beforeEach(() => connection.seed.run());
   after(() => connection.destroy());
-  describe('/api', () => {
+  describe('/', () => {
     it('GET responds with status: 200 and a json object of all available endpoints', () => {
       return request
       .get('/api')

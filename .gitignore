@@ -1,6 +1,6 @@
 node_modules
-knexfile.js
 error-handling.md
 hosting.md
 query.sql
 README.md
+db/utils/README.md
