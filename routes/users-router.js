@@ -1,6 +1,6 @@
 const express = require("express");
 const usersRouter = express.Router();
-const { getUserById } = require("../controllers/controller");
+const { getUserById } = require("../controllers/users-controller");
 const { error404Handler, error405Handler } = require("../errors/error");
 
 usersRouter

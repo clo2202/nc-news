@@ -1,6 +1,6 @@
 const express = require("express");
 const commentsRouter = express.Router();
-const { updateCommentById, deleteCommentbyId } = require("../controllers/controller");
+const { updateCommentById, deleteCommentbyId } = require("../controllers/comments-controller");
 const {
   error404Handler,
   error400Handler,

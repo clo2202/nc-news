@@ -20,6 +20,17 @@ describe("/api", () => {
         expect(body).to.be.an('object')
       })
     })
+    it("INVALID METHOD responds with status: 405", () => {
+      const invalidMethods = ["put", "patch", 'post', "delete"];
+      const methodPromises = invalidMethods.map(method => {
+        return request[method]("/api")
+          .expect(405)
+          .then(({ body: { msg } }) => {
+            expect(msg).to.equal("Method not allowed");
+          });
+      });
+      return Promise.all(methodPromises);
+    });
   });
   describe("/topics", () => {
     it("GET responds with status: 200 and an array of topic objects", () => {
@@ -48,16 +59,16 @@ describe("/api", () => {
       return request
         .get("/api/users/rogersop")
         .expect(200)
-        .then(({ body }) => {
-          expect(body).to.contain.keys("username", "avatar_url", "name");
-          expect(body.name).to.equal("paul");
+        .then(({ body: { user } }) => {
+          expect(user).to.contain.keys("username", "avatar_url", "name");
+          expect(user.name).to.equal("paul");
         });
     });
     it("GET ERROR responds with status: 404 when username is non-existent", () => {
       return request
         .get("/api/users/notAUsername")
         .expect(404)
-        .then(({ body }) => {
+        .then(({ body}) => {
           expect(body.msg).to.equal("Username does not exist");
         });
     });
@@ -78,8 +89,8 @@ describe("/api", () => {
       return request
         .get("/api/articles/1")
         .expect(200)
-        .then(({ body }) => {
-          expect(body).to.contain.keys(
+        .then(({ body: { article} }) => {
+          expect(article).to.contain.keys(
             "author",
             "title",
             "article_id",
@@ -88,15 +99,15 @@ describe("/api", () => {
             "created_at",
             "votes"
           );
-          expect(body.author).to.equal("butter_bridge");
+          expect(article.author).to.equal("butter_bridge");
         });
     });
     it("GET responds with an article obj which includes a count of no. of comments", () => {
       return request
         .get("/api/articles/1")
         .expect(200)
-        .then(({ body }) => {
-          expect(body.comment_count).to.equal("13");
+        .then(({ body: { article} }) => {
+          expect(article.comment_count).to.equal("13");
         });
     });
     it("GET ERROR responds with status: 404 when article is non-existent", () => {
@@ -115,24 +126,34 @@ describe("/api", () => {
           expect(msg).to.equal("Bad Request");
         });
     });
-    it("PATCH responds with status: 201 and an updated object with given article_id", () => {
+    it("PATCH responds with status: 200 and an updated object with given article_id", () => {
       const input = { inc_votes: 1 };
       return request
         .patch("/api/articles/1")
         .send(input)
-        .expect(201)
+        .expect(200)
         .then(({ body: { article } }) => {
           expect(article.votes).to.equal(101);
         });
     });
-    it("PATCH responds with status: 201 and an updated object with decreased votes", () => {
+    it("PATCH responds with status: 200 and an updated object with decreased votes", () => {
       const input = { inc_votes: -1 };
       return request
         .patch("/api/articles/1")
         .send(input)
-        .expect(201)
+        .expect(200)
         .then(({ body: { article } }) => {
           expect(article.votes).to.equal(99);
+        });
+    });
+    it("PATCH responds with status: 200 and an unchanged object if request body is empty", () => {
+      const input = {};
+      return request
+        .patch("/api/articles/1")
+        .send(input)
+        .expect(200)
+        .then(({ body: { article } }) => {
+          expect(article.votes).to.equal(100);
         });
     });
     it("PATCH ERROR responds with status: 404 when article id does not exist", () => {
@@ -224,6 +245,18 @@ describe("/api", () => {
           expect(msg).to.equal("Bad Request");
         });
     });
+    it("POST ERROR responds with status: 400 when required info is not provided", () => {
+      const input = {
+        username: "test user",
+      };
+      return request
+        .post("/api/articles/1/comments")
+        .send(input)
+        .expect(400)
+        .then(({ body: { msg } }) => {
+          expect(msg).to.equal("Bad Request");
+        });
+    });
     it("GET responds with status: 200 and an array of all comments for given article", () => {
       return request
         .get("/api/articles/1/comments")
@@ -247,6 +280,14 @@ describe("/api", () => {
           expect(comments).to.be.sortedBy("created_at", { descending: true });
         });
     });
+    it("GET responds with status: 200 & and an empty array if there are no comments for given article", () => {
+      return request
+        .get("/api/articles/4/comments")
+        .expect(200)
+        .then(({ body: { comments } }) => {
+          expect(comments).to.eql([]);
+        });
+    });
     it("GET responds with status: 200 & an array of comments that can be sorted by a given column", () => {
       return request
         .get("/api/articles/1/comments?sort_by=votes")
@@ -257,7 +298,7 @@ describe("/api", () => {
     });
     it("GET responds with status: 200 & an array of comments with a default order of descending", () => {
       return request
-        .get("/api/articles/1/comments")
+        .get("/api/articles/5/comments")
         .expect(200)
         .then(({ body: { comments } }) => {
           expect(comments).to.be.sortedBy("created_at", { descending: true });
@@ -385,26 +426,36 @@ describe("/api", () => {
     });
   });
   describe('/api/comments/:comment_id', () => {
-    it('PATCH responds with status: 201 an updated comment object', () => {
+    it('PATCH responds with status: 200 an updated comment object', () => {
       const input = { inc_votes: 1 }
       return request
         .patch('/api/comments/1')
         .send(input)
-        .expect(201)
+        .expect(200)
         .then(({body: { comment }}) => {
           expect(comment.votes).to.equal(17)
         })
     })
-    it('PATCH responds with status: 201 an updated comment object with decreased votes', () => {
+    it('PATCH responds with status: 200 an updated comment object with decreased votes', () => {
       const input = { inc_votes: -1 }
       return request
         .patch('/api/comments/1')
         .send(input)
-        .expect(201)
+        .expect(200)
         .then(({body: { comment }}) => {
           expect(comment.votes).to.equal(15)
         })
     })
+    it("PATCH responds with status: 200 and an unchanged object if request body is empty", () => {
+      const input = {};
+      return request
+        .patch("/api/comments/1")
+        .send(input)
+        .expect(200)
+        .then(({ body: { comment } }) => {
+          expect(comment.votes).to.equal(16);
+        });
+    });
     it("PATCH ERROR responds with status: 404 when comment id does not exist", () => {
       const input = { inc_votes: 1 }
       return request

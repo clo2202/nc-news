@@ -6,7 +6,7 @@ const {
   postCommentByArticleId,
   getCommentsByArticleId,
   getArticles
-} = require("../controllers/controller");
+} = require("../controllers/articles-controller");
 const {
   error404Handler,
   error400Handler,
