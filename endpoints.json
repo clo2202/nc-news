@@ -10,7 +10,7 @@
     }
   },
   "GET /api/articles": {
-    "description": "serves an array of all topics",
+    "description": "serves an array of all articles",
     "queries": ["author", "topic", "sort_by", "order"],
     "exampleResponse": {
       "articles": [
@@ -23,5 +23,107 @@
         }
       ]
     }
+  },
+  "GET /api/articles/:article": {
+    "description": "serves an single article object based on given article_id",
+    "queries": [],
+    "exampleResponse": {
+      "article": {
+        "article_id": 1,
+        "title": "Running a Node App",
+        "body": "This is part two of a series on how to get up and running with Systemd and Node.js. This part dives deeper into how to successfully run your app with systemd long-term, and how to set it up in a production environment.",
+        "votes": 0,
+        "topic": "coding",
+        "author": "jessjelly",
+        "created_at": "2016-08-18T12:07:52.389Z",
+        "comment_count": "8"
+      }
+    }
+  },
+  "PATCH /api/articles/:article": {
+    "description": "ability to update votes on an article object based on given article_id",
+    "queries": [],
+    "exampleResponse": {
+      "article": {
+        "article_id": 1,
+        "title": "Running a Node App",
+        "body": "This is part two of a series on how to get up and running with Systemd and Node.js. This part dives deeper into how to successfully run your app with systemd long-term, and how to set it up in a production environment.",
+        "votes": 1,
+        "topic": "coding",
+        "author": "jessjelly",
+        "created_at": "2016-08-18T12:07:52.389Z",
+        "comment_count": "8"
+      }
+    }
+  },
+  "GET /api/articles/:article/comments": {
+    "description": "serves an array of comments based on given article_id",
+    "queries": ["sort_by", "order"],
+    "exampleResponse": {
+      "comments": [
+        {
+          "comment_id": 44,
+          "author": "grumpy19",
+          "article_id": 1,
+          "votes": 4,
+          "created_at": "2017-11-20T08:58:48.322Z",
+          "body": "Error est qui id corrupti et quod enim accusantium minus. Deleniti quae ea magni officiis et qui suscipit non."
+        },
+        {
+          "comment_id": 52,
+          "author": "jessjelly",
+          "article_id": 1,
+          "votes": 10,
+          "created_at": "2017-07-31T08:14:13.076Z",
+          "body": "Consectetur deleniti sed. Omnis et dolore omnis aspernatur. Et porro accusantium. Tempora ullam voluptatum et rerum."
+        }
+      ]
+    }
+  },
+  "POST /api/articles/:article/comments": {
+    "description": "ability to add a new comment to a given article",
+    "queries": [],
+    "exampleResponse": {
+      "comments": {
+        "comment_id": 60,
+        "author": "chloe",
+        "article_id": 1,
+        "votes": 0,
+        "created_at": "2019-06-20T08:58:48.322Z",
+        "body": "Error est qui id corrupti et quod enim accusantium minus. Deleniti quae ea magni officiis et qui suscipit non."
+      }
+    }
+  },
+  "GET /api/users/:username": {
+    "description": "serves a user object based on desired username",
+    "queries": [],
+    "exampleResponse": {
+      "user": [
+        {
+          "username": "tickle122",
+          "avatur_url": "https://www.spiritsurfers.net/monastery/wp-content/uploads/_41500270_mrtickle.jpg",
+          "name": "Tom Tickle"
+        }
+      ]
+    }
+  },
+  "PATCH /api/comments/:comment_id": {
+    "description": "ability to update votes on an comment object based on given comment_id",
+    "queries": [],
+    "exampleResponse": {
+      "comment": {
+        "comment_id": 44,
+        "author": "grumpy19",
+        "article_id": 1,
+        "votes": 4,
+        "created_at": "2017-11-20T08:58:48.322Z",
+        "body": "Error est qui id corrupti et quod enim accusantium minus. Deleniti quae ea magni officiis et qui suscipit non."
+      }
+    }
+  },
+  "DELETE /api/comments/:comment_id": {
+    "description": "ability to delete a comment based on given comment_id",
+    "queries": [],
+    "exampleResponse": {}
   }
 }
