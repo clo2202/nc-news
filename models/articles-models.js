@@ -33,3 +33,18 @@ exports.fetchArticles = ({article_id}, {sort_by, order, author, topic}) => {
       return Promise.reject(err)
     })
   } 
+
+  exports.addArticle = (article) => {
+    return connection('articles')
+    .insert(article)
+    .returning('*')
+  }
+
+  exports.removeArticleById = ({article_id}) => {
+    return connection('articles')
+    .where({article_id})
+    .del()
+    .then(delCount => {
+      if(!delCount) return Promise.reject({status:404, msg: 'Article does not exist'})
+    })
+  }

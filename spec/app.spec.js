@@ -32,7 +32,7 @@ describe("/api", () => {
       return Promise.all(methodPromises);
     });
   });
-  describe("/topics", () => {
+  describe.only("/topics", () => {
     it("GET responds with status: 200 and an array of topic objects", () => {
       return request
         .get("/api/topics")
@@ -40,6 +40,23 @@ describe("/api", () => {
         .then(({ body: { topics } }) => {
           expect(topics).to.be.an("array");
           expect(topics[0]).to.contain.keys("slug", "description");
+        });
+    });
+    it("POST responds with status: 201 and the new topic obj", () => {
+      const input = {
+        slug: 'test',
+        description: 'test topic',
+      };
+      return request
+        .post("/api/topics")
+        .send(input)
+        .expect(201)
+        .then(({ body: { topic} }) => {
+          expect(topic.slug).to.equal('test');
+          expect(topic).to.contain.keys(
+            "slug",
+            "description"
+          );
         });
     });
     it("INVALID METHOD responds with status: 405", () => {
@@ -84,7 +101,7 @@ describe("/api", () => {
       return Promise.all(methodPromises);
     });
   });
-  describe("/articles/:article", () => {
+  describe("/articles/:article_id", () => {
     it("GET responds with status:200 and a single article obj with given article_id", () => {
       return request
         .get("/api/articles/1")
@@ -125,6 +142,27 @@ describe("/api", () => {
         .then(({ body: { msg } }) => {
           expect(msg).to.equal("Bad Request");
         });
+    });
+    it('DELETE responds with status: 204 and no content', () => {
+      return request
+        .delete('/api/articles/1')
+        .expect(204)
+    });
+    it("DELETE ERROR responds with status: 404 when article id does not exist", () => {
+      return request
+        .delete("/api/articles/5000")
+        .expect(404)
+        .then(({ body: { msg } }) => {
+          expect(msg).to.equal("Article does not exist");
+        });
+    });
+    it('DELETE ERROR responds with status: 400 when article id is invalid', () => {
+      return request
+      .delete("/api/articles/cats")
+      .expect(400)
+      .then(({body: { msg }}) => {
+        expect(msg).to.equal("Bad Request")
+      })
     });
     it("PATCH responds with status: 200 and an updated object with given article_id", () => {
       const input = { inc_votes: 1 };
@@ -187,7 +225,7 @@ describe("/api", () => {
         });
     });
     it("INVALID METHOD responds with status: 405", () => {
-      const invalidMethods = ["put", "post", "delete"];
+      const invalidMethods = ["put", "post"];
       const methodPromises = invalidMethods.map(method => {
         return request[method]("/api/articles/1")
           .expect(405)
@@ -413,8 +451,44 @@ describe("/api", () => {
         expect(msg).to.equal("Page cannot be found")
       })
     });
+    it("POST responds with status: 201 and the new article obj", () => {
+      const input = {
+        title: 'Test article',
+        topic: 'mitch',
+        author: 'butter_bridge',
+        body: 'I am a test article',
+      };
+      return request
+        .post("/api/articles")
+        .send(input)
+        .expect(201)
+        .then(({ body: { article} }) => {
+          expect(article.votes).to.equal(0);
+          expect(article).to.contain.keys(
+            "article_id",
+            "author",
+            "topic",
+            "created_at",
+            "body"
+          );
+        });
+    });
+    it("POST ERROR responds with status: 400 when input value is missing", () => {
+      const input = {
+        title: 'Test article',
+        topic: 'mitch',
+        body: 'I am a test article',
+      };
+      return request
+        .post("/api/articles")
+        .send(input)
+        .expect(400)
+        .then(({ body: { msg } }) => {
+          expect(msg).to.equal("Bad Request");
+        });
+    });
     it("INVALID METHOD responds with status: 405", () => {
-      const invalidMethods = ["delete", "put", "patch", "post"];
+      const invalidMethods = ["delete", "put", "patch"];
       const methodPromises = invalidMethods.map(method => {
         return request[method]("/api/articles")
           .expect(405)
@@ -531,3 +605,6 @@ describe("generic error tests", () => {
       });
   });
 });
+
+// POST /api/users
+// GET /api/users

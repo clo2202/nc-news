@@ -1,4 +1,4 @@
-const { fetchArticles, amendArticleById, addCommentByArticleId } = require('../models/articles-models')
+const { fetchArticles, amendArticleById, addCommentByArticleId, removeArticleById, addArticle } = require('../models/articles-models')
 const { fetchComments } =require('../models/comments-model')
 
 exports.getArticleById = (req, res, next) => {
@@ -49,6 +49,21 @@ exports.getArticleById = (req, res, next) => {
       } else {
         next({status: 404})
       }
+    })
+    .catch(next)
+  }
+
+  exports.deleteArticleById = (req, res, next) => {
+    removeArticleById(req.params)
+    .then(() => {
+      res.status(204).send()
+    })
+    .catch(next)
+  }
+
+  exports.postArticle = (req, res, next) => {
+    addArticle(req.body).then(([article]) => {
+    res.status(201).send({article})
     })
     .catch(next)
   }
