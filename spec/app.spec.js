@@ -32,7 +32,7 @@ describe("/api", () => {
       return Promise.all(methodPromises);
     });
   });
-  describe.only("/topics", () => {
+  describe("/topics", () => {
     it("GET responds with status: 200 and an array of topic objects", () => {
       return request
         .get("/api/topics")
