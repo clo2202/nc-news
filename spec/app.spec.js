@@ -71,6 +71,17 @@ describe("/api", () => {
       return Promise.all(methodPromises);
     });
   });
+  describe('/users', () => {
+    it("GET responds with status: 200 and an array of user objects", () => {
+      return request
+        .get("/api/users")
+        .expect(200)
+        .then(({ body: { users } }) => {
+          expect(users).to.be.an("array");
+          expect(users.length).to.equal(4)
+        });
+    });
+  })
   describe("/users/:username", () => {
     it("GET responds with status:200 and a single user obj with given username", () => {
       return request
